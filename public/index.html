@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>阿瓦隆 - 在线版</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Crimson Text', serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0f1419 100%);
+            color: #e0e6ed;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(100, 149, 237, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.1); }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 3em;
+            text-align: center;
+            margin-bottom: 10px;
+            color: #d4af37;
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.5), 0 0 40px rgba(212, 175, 55, 0.3);
+            letter-spacing: 4px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #8a9fb0;
+            margin-bottom: 40px;
+            font-style: italic;
+            font-size: 1.1em;
+        }
+
+        .card {
+            background: rgba(15, 20, 35, 0.85);
+            border: 2px solid rgba(100, 149, 237, 0.3);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: rgba(100, 149, 237, 0.5);
+            box-shadow: 0 12px 48px rgba(0, 0, 0, 0.6);
+        }
+
+        h2 {
+            font-family: 'Cinzel', serif;
+            color: #d4af37;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+            border-bottom: 2px solid rgba(212, 175, 55, 0.3);
+            padding-bottom: 10px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #b0c4d8;
+            font-weight: 600;
+        }
+
+        input[type="text"], select {
+            width: 100%;
+            padding: 12px;
+            background: rgba(20, 30, 50, 0.6);
+            border: 2px solid rgba(100, 149, 237, 0.3);
+            border-radius: 8px;
+            color: #e0e6ed;
+            font-size: 16px;
+            font-family: 'Crimson Text', serif;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus, select:focus {
+            outline: none;
+            border-color: #d4af37;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+        }
+
+        button {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #d4af37 0%, #b8941f 100%);
+            color: #0a0e27;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Cinzel', serif;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(212, 175, 55, 0.5);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background: linear-gradient(135deg, #555 0%, #444 100%);
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .player-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .player-card {
+            background: rgba(30, 40, 60, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid rgba(100, 149, 237, 0.2);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .player-card.online {
+            border-color: rgba(76, 175, 80, 0.5);
+            background: rgba(30, 60, 40, 0.3);
+        }
+
+        .player-card.offline {
+            opacity: 0.5;
+        }
+
+        .player-card.selected {
+            border-color: #d4af37;
+            background: rgba(212, 175, 55, 0.2);
+            transform: scale(1.05);
+        }
+
+        .role-good {
+            color: #4dabf7;
+        }
+
+        .role-evil {
+            color: #ff6b6b;
+        }
+
+        .status {
+            padding: 8px 15px;
+            background: rgba(100, 149, 237, 0.2);
+            border-radius: 5px;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        .mission-track {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            gap: 10px;
+        }
+
+        .mission-card {
+            flex: 1;
+            padding: 15px;
+            background: rgba(30, 40, 60, 0.5);
+            border: 2px solid rgba(100, 149, 237, 0.2);
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .mission-card.success {
+            border-color: #4dabf7;
+            background: rgba(77, 171, 247, 0.1);
+        }
+
+        .mission-card.fail {
+            border-color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.1);
+        }
+
+        .log {
+            max-height: 300px;
+            overflow-y: auto;
+            background: rgba(10, 15, 25, 0.6);
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
+        .log-entry {
+            margin-bottom: 8px;
+            padding: 5px;
+            border-left: 3px solid rgba(212, 175, 55, 0.3);
+            padding-left: 10px;
+        }
+
+        .error {
+            background: rgba(255, 107, 107, 0.2);
+            border: 2px solid #ff6b6b;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            color: #ff6b6b;
+        }
+
+        .success {
+            background: rgba(76, 175, 80, 0.2);
+            border: 2px solid #4caf50;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            color: #4caf50;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .room-code {
+            font-family: 'Courier New', monospace;
+            font-size: 2em;
+            color: #d4af37;
+            text-align: center;
+            padding: 20px;
+            background: rgba(212, 175, 55, 0.1);
+            border: 2px dashed #d4af37;
+            border-radius: 10px;
+            letter-spacing: 8px;
+            margin: 20px 0;
+        }
+
+        .connection-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            z-index: 1000;
+        }
+
+        .connection-status.connected {
+            background: rgba(76, 175, 80, 0.3);
+            border: 2px solid #4caf50;
+            color: #4caf50;
+        }
+
+        .connection-status.disconnected {
+            background: rgba(255, 107, 107, 0.3);
+            border: 2px solid #ff6b6b;
+            color: #ff6b6b;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+            
+            .player-list {
+                grid-template-columns: 1fr;
+            }
+            
+            .mission-track {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="connection-status disconnected" id="connectionStatus">
+        🔴 未连接
+    </div>
+
+    <div class="container">
+        <h1>⚔️ AVALON ⚔️</h1>
+        <p class="subtitle">正义与邪恶的终极对决</p>
+
+        <!-- 登录界面 -->
+        <div id="loginScreen" class="card">
+            <h2>加入游戏</h2>
+            <div class="input-group">
+                <label>你的昵称：</label>
+                <input type="text" id="nicknameInput" placeholder="输入你的昵称" maxlength="20">
+            </div>
+            <div class="input-group">
+                <label>房间代码（留空创建新房间）：</label>
+                <input type="text" id="roomCodeInput" placeholder="6位房间代码" maxlength="6" style="text-transform: uppercase;">
+            </div>
+            <button onclick="joinRoom()">进入房间</button>
+            <div id="loginError" class="error hidden"></div>
+        </div>
+
+        <!-- 大厅界面 -->
+        <div id="lobbyScreen" class="hidden">
+            <div class="card">
+                <h2>游戏大厅</h2>
+                <div class="room-code" id="displayRoomCode"></div>
+                <p style="text-align: center; color: #8a9fb0;">分享此代码给朋友加入游戏</p>
+                
+                <h3 style="color: #d4af37; margin-top: 30px;">玩家列表 (<span id="playerCount">0</span>)</h3>
+                <div id="lobbyPlayers" class="player-list"></div>
+
+                <div id="hostControls" class="hidden" style="margin-top: 30px;">
+                    <div class="input-group">
+                        <label>选择游戏人数：</label>
+                        <select id="playerNumSelect">
+                            <option value="5">5人局</option>
+                            <option value="6">6人局</option>
+                            <option value="7">7人局</option>
+                            <option value="8">8人局</option>
+                            <option value="9">9人局</option>
+                            <option value="10">10人局</option>
+                        </select>
+                    </div>
+                    <div class="button-group">
+                        <button onclick="startGame()">开始游戏</button>
+                        <button onclick="deleteRoom()" style="background: linear-gradient(135deg, #ff6b6b 0%, #d63031 100%);">删除房间</button>
+                    </div>
+                </div>
+
+                <div id="waitingMessage" class="status" style="display: block; text-align: center; margin-top: 20px;">
+                    等待房主开始游戏...
+                </div>
+            </div>
+        </div>
+
+        <!-- 游戏界面 -->
+        <div id="gameScreen" class="hidden">
+            <!-- 身份信息 -->
+            <div class="card">
+                <h2>你的身份</h2>
+                <div id="roleInfo"></div>
+                <button onclick="viewRole()" id="viewRoleBtn">查看我的身份</button>
+            </div>
+
+            <!-- 任务进度 -->
+            <div class="card">
+                <h2>任务进度</h2>
+                <div id="missionTrack" class="mission-track"></div>
+            </div>
+
+            <!-- 游戏操作区 -->
+            <div class="card">
+                <h2>游戏状态</h2>
+                <div id="gameStatus"></div>
+                <div id="gameActions"></div>
+            </div>
+
+            <!-- 游戏日志 -->
+            <div class="card">
+                <h2>游戏日志</h2>
+                <div id="gameLog" class="log"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        // 连接到服务器
+        const socket = io();
+        
+        let myNickname = '';
+        let currentRoomCode = '';
+        let isHost = false;
+        let myRole = null;
+        let currentRoom = null;
+
+        const roleConfigs = {
+            5: { good: 3, evil: 2, roles: ['梅林', '派西维尔', '忠臣', '莫甘娜', '刺客'] },
+            6: { good: 4, evil: 2, roles: ['梅林', '派西维尔', '忠臣', '忠臣', '莫甘娜', '刺客'] },
+            7: { good: 4, evil: 3, roles: ['梅林', '派西维尔', '忠臣', '忠臣', '莫甘娜', '刺客', '莫德雷德'] },
+            8: { good: 5, evil: 3, roles: ['梅林', '派西维尔', '忠臣', '忠臣', '忠臣', '莫甘娜', '刺客', '奥伯伦'] },
+            9: { good: 6, evil: 3, roles: ['梅林', '派西维尔', '忠臣', '忠臣', '忠臣', '忠臣', '莫甘娜', '刺客', '莫德雷德'] },
+            10: { good: 6, evil: 4, roles: ['梅林', '派西维尔', '忠臣', '忠臣', '忠臣', '忠臣', '莫甘娜', '刺客', '莫德雷德', '奥伯伦'] }
+        };
+
+        const missionConfigs = {
+            5: [2, 3, 2, 3, 3],
+            6: [2, 3, 4, 3, 4],
+            7: [2, 3, 3, 4, 4],
+            8: [3, 4, 4, 5, 5],
+            9: [3, 4, 4, 5, 5],
+            10: [3, 4, 4, 5, 5]
+        };
+
+        // 连接状态
+        socket.on('connect', () => {
+            updateConnectionStatus(true);
+        });
+
+        socket.on('disconnect', () => {
+            updateConnectionStatus(false);
+        });
+
+        function updateConnectionStatus(connected) {
+            const status = document.getElementById('connectionStatus');
+            if (connected) {
+                status.className = 'connection-status connected';
+                status.textContent = '🟢 已连接';
+            } else {
+                status.className = 'connection-status disconnected';
+                status.textContent = '🔴 未连接';
+            }
+        }
+
+        // 加入房间
+        function joinRoom() {
+            const nickname = document.getElementById('nicknameInput').value.trim();
+            const roomCode = document.getElementById('roomCodeInput').value.trim().toUpperCase();
+
+            if (!nickname) {
+                showError('loginError', '请输入昵称');
+                return;
+            }
+
+            myNickname = nickname;
+
+            if (!roomCode) {
+                // 创建新房间
+                socket.emit('createRoom', nickname, (response) => {
+                    if (response.success) {
+                        currentRoomCode = response.roomCode;
+                        isHost = true;
+                        enterLobby();
+                    } else {
+                        showError('loginError', response.error);
+                    }
+                });
+            } else {
+                // 加入现有房间
+                socket.emit('joinRoom', { roomCode, nickname }, (response) => {
+                    if (response.success) {
+                        currentRoomCode = roomCode;
+                        isHost = false;
+                        enterLobby();
+                    } else {
+                        showError('loginError', response.error);
+                    }
+                });
+            }
+        }
+
+        // 进入大厅
+        function enterLobby() {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('lobbyScreen').classList.remove('hidden');
+            document.getElementById('displayRoomCode').textContent = currentRoomCode;
+
+            if (isHost) {
+                document.getElementById('hostControls').classList.remove('hidden');
+                document.getElementById('waitingMessage').style.display = 'none';
+            }
+        }
+
+        // 开始游戏
+        function startGame() {
+            const playerNum = parseInt(document.getElementById('playerNumSelect').value);
+            socket.emit('startGame', playerNum, (response) => {
+                if (!response.success) {
+                    alert(response.error);
+                }
+            });
+        }
+
+        // 查看身份
+        function viewRole() {
+            socket.emit('viewRole');
+        }
+
+        // 切换队伍成员
+        function toggleTeamMember(nickname) {
+            socket.emit('toggleTeamMember', nickname);
+        }
+
+        // 确认队伍
+        function confirmTeam() {
+            socket.emit('confirmTeam');
+        }
+
+        // 投票队伍
+        function voteTeam(approve) {
+            socket.emit('voteTeam', approve);
+        }
+
+        // 投票任务
+        function voteMission(success) {
+            socket.emit('voteMission', success);
+        }
+
+        // 刺杀
+        function assassinate(target) {
+            socket.emit('assassinate', target);
+        }
+
+        // 返回大厅
+        function returnToLobby() {
+            socket.emit('returnToLobby');
+        }
+
+        // 删除房间
+        function deleteRoom() {
+            if (confirm('确定要删除房间吗？')) {
+                socket.emit('deleteRoom');
+            }
+        }
+
+        // Socket 事件处理
+        socket.on('roomUpdate', (room) => {
+            currentRoom = room;
+            updateLobby(room);
+        });
+
+        socket.on('gameStart', (room) => {
+            currentRoom = room;
+            enterGame();
+        });
+
+        socket.on('gameUpdate', (room) => {
+            currentRoom = room;
+            updateGame(room);
+        });
+
+        socket.on('roleInfo', (data) => {
+            myRole = data.role;
+            displayRoleInfo(data);
+        });
+
+        socket.on('returnToLobby', (room) => {
+            currentRoom = room;
+            document.getElementById('gameScreen').classList.add('hidden');
+            document.getElementById('lobbyScreen').classList.remove('hidden');
+            myRole = null;
+        });
+
+        socket.on('roomDeleted', () => {
+            alert('房间已被删除');
+            location.reload();
+        });
+
+        // 更新大厅
+        function updateLobby(room) {
+            document.getElementById('playerCount').textContent = room.players.length;
+            
+            const playerList = document.getElementById('lobbyPlayers');
+            playerList.innerHTML = room.players.map(p => `
+                <div class="player-card ${p.online ? 'online' : 'offline'}">
+                    <div style="font-size: 1.2em; font-weight: bold;">${p.nickname}</div>
+                    ${p.nickname === room.host ? '<div style="color: #d4af37; margin-top: 5px;">👑 房主</div>' : ''}
+                    ${!p.online ? '<div style="color: #ff6b6b; margin-top: 5px;">⚠️ 离线</div>' : ''}
+                </div>
+            `).join('');
+        }
+
+        // 进入游戏
+        function enterGame() {
+            document.getElementById('lobbyScreen').classList.add('hidden');
+            document.getElementById('gameScreen').classList.remove('hidden');
+        }
+
+        // 显示角色信息
+        function displayRoleInfo(data) {
+            const isEvil = ['莫甘娜', '刺客', '莫德雷德', '奥伯伦', '爪牙'].includes(myRole);
+            const roleInfo = document.getElementById('roleInfo');
+            
+            let info = `<div style="font-size: 1.5em; margin-bottom: 20px;" class="${isEvil ? 'role-evil' : 'role-good'}">
+                你的身份：<strong>${myRole}</strong>
+            </div>`;
+
+            info += `<div style="margin-bottom: 15px;">阵营：<strong class="${isEvil ? 'role-evil' : 'role-good'}">${isEvil ? '邪恶方' : '正义方'}</strong></div>`;
+
+            // 显示特殊视野
+            if (myRole === '梅林') {
+                const evilPlayers = data.players.filter(p => 
+                    ['莫甘娜', '刺客', '爪牙'].includes(p.role)
+                ).map(p => p.nickname);
+                info += `<div style="background: rgba(255,107,107,0.2); padding: 15px; border-radius: 8px; margin-top: 15px;">
+                    <strong>梅林的视野：</strong><br>
+                    你看到的邪恶方：${evilPlayers.join('、')}<br>
+                    <em style="color: #ff6b6b;">⚠️ 注意：你看不到莫德雷德！</em>
+                </div>`;
+            } else if (myRole === '派西维尔') {
+                const merlinMorgana = data.players.filter(p => 
+                    ['梅林', '莫甘娜'].includes(p.role)
+                ).map(p => p.nickname);
+                info += `<div style="background: rgba(77,171,247,0.2); padding: 15px; border-radius: 8px; margin-top: 15px;">
+                    <strong>派西维尔的视野：</strong><br>
+                    梅林和莫甘娜是：${merlinMorgana.join('、')}<br>
+                    <em>你需要通过游戏推理出谁是梅林</em>
+                </div>`;
+            } else if (isEvil && myRole !== '奥伯伦') {
+                const evilTeam = data.players.filter(p => 
+                    ['莫甘娜', '刺客', '莫德雷德', '爪牙'].includes(p.role) && p.nickname !== myNickname
+                ).map(p => `${p.nickname}(${p.role})`);
+                info += `<div style="background: rgba(255,107,107,0.2); padding: 15px; border-radius: 8px; margin-top: 15px;">
+                    <strong>邪恶方同伴：</strong><br>
+                    ${evilTeam.join('、')}
+                </div>`;
+            } else if (myRole === '奥伯伦') {
+                info += `<div style="background: rgba(255,107,107,0.2); padding: 15px; border-radius: 8px; margin-top: 15px;">
+                    <strong>奥伯伦特性：</strong><br>
+                    你不知道其他邪恶方是谁，其他邪恶方也不知道你是谁
+                </div>`;
+            }
+
+            roleInfo.innerHTML = info;
+            document.getElementById('viewRoleBtn').disabled = true;
+        }
+
+        // 更新游戏状态
+        function updateGame(room) {
+            updateMissionTrack(room);
+            updateGameStatus(room);
+            updateGameLog(room);
+        }
+
+        // 更新任务进度
+        function updateMissionTrack(room) {
+            const playerNum = room.players.length;
+            const track = document.getElementById('missionTrack');
+            
+            track.innerHTML = missionConfigs[playerNum].map((size, index) => {
+                const mission = room.gameState.missions[index];
+                let className = 'mission-card';
+                let status = '未进行';
+                
+                if (mission) {
+                    className += mission.success ? ' success' : ' fail';
+                    status = mission.success ? '✓ 成功' : '✗ 失败';
+                }
+                
+                return `
+                    <div class="${className}">
+                        <div style="font-size: 1.2em; font-weight: bold;">任务 ${index + 1}</div>
+                        <div style="margin: 10px 0;">需要 ${size} 人</div>
+                        <div style="color: #d4af37;">${status}</div>
+                        ${index === 3 && playerNum >= 7 ? '<div style="color: #ff6b6b; font-size: 0.9em; margin-top: 5px;">需要2个失败</div>' : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 更新游戏状态
+        function updateGameStatus(room) {
+            const state = room.gameState;
+            const statusDiv = document.getElementById('gameStatus');
+            const actionsDiv = document.getElementById('gameActions');
+            
+            const currentLeaderNick = state.leaderOrder[state.currentLeader];
+            const isLeader = currentLeaderNick === myNickname;
+            const playerNum = room.players.length;
+            const teamSize = missionConfigs[playerNum][state.currentRound - 1];
+
+            let statusHTML = `
+                <div style="margin-bottom: 15px;">
+                    <strong>当前回合：</strong>第 ${state.currentRound} 轮任务<br>
+                    <strong>当前队长：</strong>${currentLeaderNick} ${isLeader ? '(你)' : ''} 👑<br>
+                    <strong>队伍人数：</strong>${teamSize} 人<br>
+                    <strong>连续拒绝：</strong>${state.teamRejections}/5
+                </div>
+            `;
+
+            let actionsHTML = '';
+
+            if (state.phase === 'team_building') {
+                if (isLeader) {
+                    actionsHTML = `
+                        <h3 style="color: #d4af37; margin-bottom: 15px;">选择队伍成员（${(state.team || []).length}/${teamSize}）</h3>
+                        <div class="player-list">
+                            ${room.players.map(p => `
+                                <div class="player-card ${(state.team || []).includes(p.nickname) ? 'selected' : ''}" 
+                                     onclick="toggleTeamMember('${p.nickname}')" 
+                                     style="cursor: pointer;">
+                                    <div>${p.nickname}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <button onclick="confirmTeam()" ${(state.team || []).length !== teamSize ? 'disabled' : ''} 
+                                style="margin-top: 20px; width: 100%;">确认队伍</button>
+                    `;
+                } else {
+                    actionsHTML = `<div class="status">等待队长 ${currentLeaderNick} 选择队伍...</div>`;
+                }
+            } else if (state.phase === 'team_voting') {
+                statusHTML += `<div style="margin-top: 15px;"><strong>提议的队伍：</strong>${state.team.join('、')}</div>`;
+                
+                if (!state.votes[myNickname]) {
+                    actionsHTML = `
+                        <h3 style="color: #d4af37; margin-bottom: 15px;">对这个队伍投票</h3>
+                        <div class="button-group">
+                            <button onclick="voteTeam(true)" style="background: linear-gradient(135deg, #4dabf7 0%, #3b8cc7 100%);">
+                                ✓ 同意
+                            </button>
+                            <button onclick="voteTeam(false)" style="background: linear-gradient(135deg, #ff6b6b 0%, #d63031 100%);">
+                                ✗ 反对
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    actionsHTML = `<div class="status">你已投票，等待其他玩家...</div>`;
+                }
+                
+                const voteCount = Object.keys(state.votes).length;
+                actionsHTML += `<div style="margin-top: 15px;">已投票：${voteCount}/${playerNum}</div>`;
+            } else if (state.phase === 'mission') {
+                if (state.team.includes(myNickname)) {
+                    if (!state.missionVotes[myNickname]) {
+                        const isEvil = ['莫甘娜', '刺客', '莫德雷德', '奥伯伦', '爪牙'].includes(myRole);
+                        actionsHTML = `
+                            <h3 style="color: #d4af37; margin-bottom: 15px;">执行任务</h3>
+                            <div class="button-group">
+                                <button onclick="voteMission(true)" style="background: linear-gradient(135deg, #4dabf7 0%, #3b8cc7 100%);">
+                                    ✓ 任务成功
+                                </button>
+                                ${isEvil ? `
+                                    <button onclick="voteMission(false)" style="background: linear-gradient(135deg, #ff6b6b 0%, #d63031 100%);">
+                                        ✗ 任务失败
+                                    </button>
+                                ` : ''}
+                            </div>
+                        `;
+                    } else {
+                        actionsHTML = `<div class="status">你已投票，等待其他队员...</div>`;
+                    }
+                } else {
+                    actionsHTML = `<div class="status">等待队伍成员执行任务...</div>`;
+                }
+                
+                const missionVoteCount = Object.keys(state.missionVotes).length;
+                actionsHTML += `<div style="margin-top: 15px;">已投票：${missionVoteCount}/${state.team.length}</div>`;
+            } else if (state.phase === 'assassination') {
+                const isAssassin = myRole === '刺客';
+                if (isAssassin && !state.assassinTarget) {
+                    const goodPlayers = room.players.filter(p => 
+                        !['莫甘娜', '刺客', '莫德雷德', '奥伯伦', '爪牙'].includes(p.role)
+                    );
+                    actionsHTML = `
+                        <h3 style="color: #d4af37; margin-bottom: 15px;">🗡️ 刺杀梅林</h3>
+                        <p style="margin-bottom: 15px;">正义方已完成3次任务！作为刺客，你有一次机会刺杀梅林，如果刺中，邪恶方获胜！</p>
+                        <div class="player-list">
+                            ${goodPlayers.map(p => `
+                                <div class="player-card">
+                                    <div>${p.nickname}</div>
+                                    <button onclick="assassinate('${p.nickname}')" style="margin-top: 10px; background: linear-gradient(135deg, #ff6b6b 0%, #d63031 100%);">
+                                        🗡️ 刺杀
+                                    </button>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                } else {
+                    actionsHTML = `<div class="status">等待刺客选择目标...</div>`;
+                }
+            } else if (state.phase === 'game_over') {
+                actionsHTML = `
+                    <div class="success" style="text-align: center; font-size: 1.2em;">
+                        游戏结束！查看日志了解结果
+                    </div>
+                    ${isHost ? `<button onclick="returnToLobby()" style="width: 100%; margin-top: 20px;">
+                        返回大厅
+                    </button>` : ''}
+                `;
+            }
+
+            statusDiv.innerHTML = statusHTML;
+            actionsDiv.innerHTML = actionsHTML;
+        }
+
+        // 更新游戏日志
+        function updateGameLog(room) {
+            const logDiv = document.getElementById('gameLog');
+            if (!room.gameState.log) return;
+            
+            logDiv.innerHTML = room.gameState.log.map(entry => 
+                `<div class="log-entry">${entry}</div>`
+            ).join('');
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        // 工具函数
+        function showError(elementId, message) {
+            const errorDiv = document.getElementById(elementId);
+            errorDiv.textContent = message;
+            errorDiv.classList.remove('hidden');
+            setTimeout(() => errorDiv.classList.add('hidden'), 5000);
+        }
+    </script>
+</body>
+</html>
